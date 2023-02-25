@@ -4,6 +4,7 @@ var dbConn = require('../lib/db');
 
 // display user page
 router.get('/', function(req, res, next) {
+    accessRights(req, res)
     dbConn.query('SELECT * FROM users ORDER BY id desc', function(err, rows) {
         if (err) {
             req.flash('error', err);
@@ -16,9 +17,24 @@ router.get('/', function(req, res, next) {
     });
 });
 
+function accessRights(req, res) {
+    console.log(req.originalUrl)
+    if (!req.session.loggeddIn) {
+        req.flash('error', 'Please login to proceed')
+        res.redirect('/login')
+        return false;
+    } else if (!req.session.admin) {
+        req.flash('error', 'You dont have access rights to this page')
+        res.redirect('/login')
+        return false;
+    }
+    return true;
+}
+
 // display add user page
 router.get('/add', function(req, res, next) {
     // render to add.ejs
+    accessRights(req, res)
     res.render('users/add', {
         name: '',
         email: '',
@@ -28,7 +44,7 @@ router.get('/add', function(req, res, next) {
 
 // add a new user
 router.post('/add', function(req, res, next) {
-
+    accessRights(req, res)
     let name = req.body.name;
     let email = req.body.email;
     let category = req.body.category;
@@ -78,7 +94,7 @@ router.post('/add', function(req, res, next) {
 
 // display edit user page
 router.get('/edit/(:id)', function(req, res, next) {
-
+    accessRights(req, res)
     let id = req.params.id;
 
     dbConn.query('SELECT * FROM users WHERE id = ' + id, function(err, rows, fields) {
@@ -105,7 +121,7 @@ router.get('/edit/(:id)', function(req, res, next) {
 
 // update user data
 router.post('/update/:id', function(req, res, next) {
-
+    accessRights(req, res)
     let id = req.params.id;
     let name = req.body.name;
     let email = req.body.email;
@@ -157,7 +173,7 @@ router.post('/update/:id', function(req, res, next) {
 
 // delete user
 router.get('/delete/(:id)', function(req, res, next) {
-
+    accessRights(req, res)
     let id = req.params.id;
 
     dbConn.query('DELETE FROM users WHERE id = ' + id, function(err, result) {

@@ -4,6 +4,8 @@ var dbConn = require('../lib/db');
 
 // display user page
 router.get('/', function(req, res, next) {
+    console.log(req.session.loggeddIn)
+    accessRights(req, res)
     dbConn.query('SELECT * FROM stations ORDER BY id desc', function(err, rows) {
         if (err) {
             req.flash('error', err);
@@ -14,11 +16,27 @@ router.get('/', function(req, res, next) {
             res.render('stations', { data: rows });
         }
     });
+
 });
+
+function accessRights(req, res) {
+    console.log(req.originalUrl)
+    if (!req.session.loggeddIn) {
+        req.flash('error', 'Please login to proceed')
+        res.redirect('/login')
+        return false;
+    } else if (!req.session.admin) {
+        req.flash('error', 'You dont have access rights to this page')
+        res.redirect('/login')
+        return false;
+    }
+    return true;
+}
 
 // display add station page
 router.get('/add', function(req, res, next) {
     // render to add.ejs
+    accessRights(req, res);
     res.render('stations/add', {
         name: '',
         latitude: '',
@@ -32,6 +50,7 @@ router.get('/add', function(req, res, next) {
 // add a new station
 router.post('/add', function(req, res, next) {
 
+    accessRights(req, res)
     let name = req.body.name;
     let latitude = req.body.latitude;
     let longitude = req.body.longitude;
@@ -94,6 +113,7 @@ router.post('/add', function(req, res, next) {
 // display edit station page
 router.get('/edit/(:id)', function(req, res, next) {
 
+    accessRights(req, res)
     let id = req.params.id;
 
     dbConn.query('SELECT * FROM stations WHERE id = ' + id, function(err, rows, fields) {
@@ -123,7 +143,7 @@ router.get('/edit/(:id)', function(req, res, next) {
 
 // update station data
 router.post('/update/:id', function(req, res, next) {
-
+    accessRights(req, res)
     let id = req.params.id;
     let name = req.body.name;
     let latitude = req.body.latitude;
@@ -187,7 +207,7 @@ router.post('/update/:id', function(req, res, next) {
 
 // delete station
 router.get('/delete/(:id)', function(req, res, next) {
-
+    accessRights(req, res)
     let id = req.params.id;
 
     dbConn.query('DELETE FROM stations WHERE id = ' + id, function(err, result) {

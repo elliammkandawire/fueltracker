@@ -8,6 +8,7 @@ var connection = require('./lib/db');
 var usersRouter = require('./routes/users');
 var stationsRouter = require('./routes/stations');
 var fuelStatusRouter = require('./routes/fueltrack');
+var startRouter = require('./routes/start');
 var app = express();
 
 // view engine setup
@@ -29,10 +30,12 @@ app.use(flash());
 app.use('/users', usersRouter);
 app.use('/stations', stationsRouter);
 app.use('/fuelstatus', fuelStatusRouter);
+app.use('/', startRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
     next(createError(404));
 });
+
 
 app.listen(3000);

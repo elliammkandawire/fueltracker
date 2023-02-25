@@ -4,6 +4,7 @@ var dbConn = require('../lib/db');
 
 // display user page
 router.get('/', function(req, res, next) {
+    accessRights(req, res)
     dbConn.query('SELECT * FROM stations ORDER BY id desc', function(err, rows) {
         if (err) {
             req.flash('error', err);
@@ -16,10 +17,19 @@ router.get('/', function(req, res, next) {
     });
 });
 
+function accessRights(req, res) {
+    if (!req.session.loggeddIn) {
+        req.flash('error', 'Please login to proceed')
+        res.redirect('/login')
+        return false;
+    }
+    return true;
+}
+
 
 // display edit station page
 router.get('/edit/(:id)', function(req, res, next) {
-
+    accessRights(req, res)
     let id = req.params.id;
 
     dbConn.query('SELECT * FROM stations WHERE id = ' + id, function(err, rows, fields) {
@@ -49,7 +59,7 @@ router.get('/edit/(:id)', function(req, res, next) {
 
 // update station data
 router.post('/update/:id', function(req, res, next) {
-
+    accessRights(req, res)
     let id = req.params.id;
     let name = req.body.name;
     let latitude = req.body.latitude;
