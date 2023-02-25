@@ -1,0 +1,61 @@
+<html lang="en">
+
+<head>
+    <style>
+        body {
+            /* background-color: #4C2C69; */
+            padding: 30px;
+            text-align: center;
+        }
+        
+        nav ul li {
+            display: inline-block;
+            margin-right: 30px;
+        }
+        
+        nav ul li:last-child {
+            margin-right: 0;
+        }
+        
+        nav ul li a {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 18px;
+            font-weight: 600;
+            display: block;
+            text-decoration: none;
+            position: relative;
+            /* color: #ABFAA9; */
+        }
+        
+        nav ul li a::after {
+            content: "";
+            display: block;
+            position: absolute;
+            left: 0;
+            bottom: 10;
+            width: 0%;
+            /* background-color: #82D173; */
+            height: 2px;
+            transition: 300ms all;
+        }
+        
+        nav ul li a:hover::after {
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- From Onurhan Demir -->
+    <nav>
+        <ul>
+            <li><a href="/stations">Stations</a></li>
+            <li><a href="/fuelstatus">Fuel Track</a></li>
+            <li><a href="/users">Users</a></li>
+            <!-- <li><a href="#">Blog</a></li> -->
+            <li><a href="/logout">Logout</a></li>
+        </ul>
+    </nav>
+</body>
+
+</html>
