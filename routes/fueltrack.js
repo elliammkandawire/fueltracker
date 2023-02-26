@@ -1,6 +1,11 @@
 var express = require('express');
 var router = express.Router();
 var dbConn = require('../lib/db');
+var Json2csvParser = require('json2csv').Parser;
+const fs = require('fs');
+var path = require('path');
+var bodyParser = require('body-parser');
+var request = require('request');
 
 // display user page
 router.get('/', function(req, res, next) {
@@ -9,10 +14,10 @@ router.get('/', function(req, res, next) {
         if (err) {
             req.flash('error', err);
             // render to views/stations/index.ejs
-            res.render('fueltrack', { data: '' });
+            res.render('fueltrack', { data: '', admin: req.session.admin });
         } else {
             // render to views/users/index.ejs
-            res.render('fueltrack', { data: rows });
+            res.render('fueltrack', { data: rows, admin: req.session.admin });
         }
     });
 });
@@ -69,7 +74,7 @@ router.post('/update/:id', function(req, res, next) {
     let nextDelivery = req.body.nextDelivery;
     let errors = false;
 
-    if (name.length === 0 || latitude.length === 0 || longitude.length === 0) {
+    if (name.length === 0 || latitude.length === 0 || longitude.length === 0 || nextDelivery.length == 0) {
         errors = true;
 
         // set flash message
@@ -114,12 +119,49 @@ router.post('/update/:id', function(req, res, next) {
                     nextDelivery: form_data.nextDelivery
                 })
             } else {
+                createCSV(req, res);
                 req.flash('success', 'Stations successfully updated');
                 res.redirect('/fuelstatus');
             }
         })
     }
 })
+
+
+function createCSV(req, res) {
+    dbConn.query("SELECT * FROM stations", function(err, stations, fields) {
+        if (err) {
+            console.log(err)
+        };
+
+        const jsonStations = JSON.parse(JSON.stringify(stations));
+        console.log(jsonStations);
+
+        // -> Convert JSON to CSV data
+        const csvFields = ['id', 'name', 'latitude', 'longitude', 'petrol', 'diesel', 'nextDelivery'];
+        const json2csvParser = new Json2csvParser({ csvFields });
+        const csv = json2csvParser.parse(jsonStations);
+
+        console.log(csv);
+
+        fs.writeFile('stations.csv', csv, (err) => {
+            if (err) throw err;
+            console.log('The file has been saved!');
+        });
+
+        //call folium api
+        request('http://127.0.0.1:5000', function(error, response, body) {
+                if (!error && response.statusCode === 200) {
+                    console.log(body) // Print the google web page.
+                }
+            })
+            // res.setHeader("Content-Type", "text/csv");
+            // res.setHeader("Content-Disposition", "attachment; filename=filling_station.csv");
+
+        // res.status(200).end(csv);
+        // -> Check 'customer.csv' file in root project folder
+    });
+}
 
 
 module.exports = router;

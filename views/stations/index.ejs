@@ -63,13 +63,21 @@
                                                         <%= data[i].longitude%>
                                                     </td>
                                                     <td>
-                                                        <%= data[i].petrol%>
+                                                        <% if(data[i].petrol){ %>
+                                                            Available
+                                                            <% } else { %>
+                                                                Not Available
+                                                                <% } %>
                                                     </td>
                                                     <td>
-                                                        <%= data[i].diesel%>
+                                                        <% if(data[i].diesel){ %>
+                                                            Available
+                                                            <% } else { %>
+                                                                Not Available
+                                                                <% } %>
                                                     </td>
                                                     <td>
-                                                        <%= data[i].nextDelivery%>
+                                                        <%= data[i].nextDelivery.toDateString() %>
                                                     </td>
                                                     <td>
                                                         <a class="btn btn-success edit" href="../stations/edit/<%=data[i].id%>">Edit</a>

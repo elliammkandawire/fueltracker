@@ -34,6 +34,7 @@ app.use('/', startRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
+    res.locals.admin = req.session.admin;
     next(createError(404));
 });
 

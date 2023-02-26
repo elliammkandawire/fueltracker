@@ -47,13 +47,21 @@
 
 <body>
     <!-- From Onurhan Demir -->
+
     <nav>
         <ul>
-            <li><a href="/stations">Stations</a></li>
-            <li><a href="/fuelstatus">Fuel Track</a></li>
-            <li><a href="/users">Users</a></li>
-            <!-- <li><a href="#">Blog</a></li> -->
-            <li><a href="/logout">Logout</a></li>
+            <% if(admin){ %>
+                <li><a href="/stations">Stations</a></li>
+                <li><a href="/fuelstatus">Fuel Track</a></li>
+                <li><a href="/users">Users</a></li>
+                <% } else { %>
+                    <li><a href="/fuelstatus">Fuel Track</a></li>
+                    <% } %>
+                        <!-- <li><a href="/stations">Stations</a></li>
+                        <li><a href="/fuelstatus">Fuel Track</a></li>
+                        <li><a href="/users">Users</a></li> -->
+                        <!-- <li><a href="#">Blog</a></li> -->
+                        <li><a href="/logout">Logout</a></li>
         </ul>
     </nav>
 </body>

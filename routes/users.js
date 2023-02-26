@@ -1,18 +1,18 @@
 var express = require('express');
 var router = express.Router();
 var dbConn = require('../lib/db');
-
-// display user page
+const bcrypt = require("bcryptjs")
+    // display user page
 router.get('/', function(req, res, next) {
     accessRights(req, res)
     dbConn.query('SELECT * FROM users ORDER BY id desc', function(err, rows) {
         if (err) {
             req.flash('error', err);
             // render to views/users/index.ejs
-            res.render('users', { data: '' });
+            res.render('users', { data: '', admin: req.session.admin });
         } else {
             // render to views/users/index.ejs
-            res.render('users', { data: rows });
+            res.render('users', { data: rows, admin: req.session.admin });
         }
     });
 });
@@ -43,12 +43,13 @@ router.get('/add', function(req, res, next) {
 })
 
 // add a new user
-router.post('/add', function(req, res, next) {
+router.post('/add', async function(req, res, next) {
     accessRights(req, res)
     let name = req.body.name;
     let email = req.body.email;
     let category = req.body.category;
     let errors = false;
+    let hashedPassword = await bcrypt.hash(req.body.email, 8)
 
     if (name.length === 0 || email.length === 0 || category === 0) {
         errors = true;
@@ -59,7 +60,8 @@ router.post('/add', function(req, res, next) {
         res.render('users/add', {
             name: name,
             email: email,
-            category: category
+            category: category,
+            password: hashedPassword
         })
     }
 
@@ -69,6 +71,7 @@ router.post('/add', function(req, res, next) {
         var form_data = {
             name: name,
             email: email,
+            password: hashedPassword,
             category: category
         }
 
@@ -120,13 +123,14 @@ router.get('/edit/(:id)', function(req, res, next) {
 })
 
 // update user data
-router.post('/update/:id', function(req, res, next) {
+router.post('/update/:id', async function(req, res, next) {
     accessRights(req, res)
     let id = req.params.id;
     let name = req.body.name;
     let email = req.body.email;
     let category = req.body.category;
     let errors = false;
+    let hashedPassword = await bcrypt.hash(req.body.email, 8)
 
     if (name.length === 0 || email.length === 0 || category.length === 0) {
         errors = true;
@@ -138,6 +142,7 @@ router.post('/update/:id', function(req, res, next) {
             id: req.params.id,
             name: name,
             email: email,
+            password: hashedPassword,
             category: category
         })
     }
@@ -148,6 +153,7 @@ router.post('/update/:id', function(req, res, next) {
         var form_data = {
                 name: name,
                 email: email,
+                password: hashedPassword,
                 category: category
             }
             // update query
@@ -161,6 +167,7 @@ router.post('/update/:id', function(req, res, next) {
                     id: req.params.id,
                     name: form_data.name,
                     email: form_data.email,
+                    password: hashedPassword,
                     category: form_data.category
                 })
             } else {
